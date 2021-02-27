@@ -2,8 +2,10 @@ require 'pry'
 require 'pry-byebug'
 
 class Player
-  CARD_NUM_VALUES = { two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-  jack: 10, queen: 10, king: 10, ace: 11 }
+  CARD_NUM_VALUES = { two: 2, three: 3, four: 4, five: 5, six: 6,
+                      seven: 7, eight: 8, nine: 9, ten: 10, jack: 10,
+                      queen: 10, king: 10, ace: 11 }
+
   def initialize
     # what would the "data" or "states" of a Player object entail?
     # maybe cards? a name?
@@ -12,9 +14,6 @@ class Player
 
   def hit(card)
     @hand << card
-  end
-
-  def stay
   end
 
   def busted?
@@ -49,15 +48,10 @@ class Dealer < Player
   end
 end
 
-
-class Participant
-  # what goes in here? all the redundant behaviors from Player and Dealer?
-end
-
 class Deck
-  #attr_reader :cards
   SUITS = [:spade, :club, :heart, :diamond]
-  VALUES = [:two, :three, :four, :five, :six, :seven, :eight, :nine, :ten, :jack, :queen, :king, :ace]
+  VALUES = [:two, :three, :four, :five, :six, :seven,
+            :eight, :nine, :ten, :jack, :queen, :king, :ace]
 
   def initialize
     @cards = []
@@ -67,7 +61,6 @@ class Deck
   end
 
   def take_card
-    # does the dealer or the deck deal?
     card = @cards.sample
     @cards.delete(card)
     card
@@ -75,19 +68,15 @@ class Deck
 end
 
 class Card
-  attr_reader :suit
+  attr_reader :suit, :value
+
   def initialize(suit, value)
-    # what are the "states" of a card?
     @suit = suit
     @value = value
   end
 
-  def value
-    @value
-  end
-
   def to_s
-    "#{value.to_s} of #{suit.to_s}s"
+    "#{value} of #{suit}s"
   end
 end
 
@@ -139,15 +128,36 @@ class Game
   end
 
   def dealer_turn
-    # START WORKING HERE
+    while @dealer.total < 17
+      @dealer.hit(@deck.take_card)
+    end
+    puts "Dealer busted!" if @dealer.busted?
+    puts @dealer.cards
+  end
+
+  def show_result
+    puts "*** FINAL RESULT ***"
+    if @player.busted?
+      puts "Dealer wins after player busts!"
+    elsif @dealer.busted?
+      puts "Player wins after dealer busts!"
+    elsif @player.total > @dealer.total
+      puts "Player wins!"
+    else
+      puts "Dealer wins"
+    end
+    puts "*** FINAL HANDS ***"
+    puts "Player hand: #{@player.cards}"
+    puts "Dealer hand: #{@dealer.cards}"
+    puts "Thanks for playing!!!!!!!"
   end
 
   def start
     deal_cards
     show_initial_cards
     player_turn
-    # dealer_turn
-    # show_result
+    dealer_turn if !@player.busted?
+    show_result
   end
 end
 
